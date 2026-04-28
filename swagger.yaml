@@ -1,0 +1,93 @@
+openapi: 3.0.0
+info:
+  title: StarEast Commerce API
+  version: 1.0.0
+  description: Simple e-commerce API with JWT auth and checkout rules
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/register:
+    post:
+      summary: Register a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: User created
+        "400":
+          description: Validation error
+
+  /api/login:
+    post:
+      summary: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Token generated
+        "401":
+          description: Invalid credentials
+
+  /api/checkout:
+    post:
+      summary: Perform checkout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productIds, paymentMethod]
+              properties:
+                productIds:
+                  type: array
+                  items:
+                    type: integer
+                paymentMethod:
+                  type: string
+                  enum: [cash, credit_card]
+      responses:
+        "200":
+          description: Checkout completed
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+
+  /api/healthcheck:
+    get:
+      summary: Healthcheck endpoint
+      responses:
+        "200":
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
